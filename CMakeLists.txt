@@ -9,6 +9,21 @@ file(COPY ${SFML_REQUIRED_DLL} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 find_package(SFML 2.5.1 COMPONENTS audio network graphics window system REQUIRED)
 
-add_executable(catGame main.cpp src/game.cpp)
+add_executable(catGame
+        main.cpp
+        src/main/game.cpp
+        src/main/world/world.cpp
+        src/main/world/world.h
+        src/main/world/tile.cpp
+        src/main/world/tile.h
+        src/constants.h
+        src/main/draw.cpp
+        src/main/draw.h
+        src/main/actor/actor.cpp
+        src/main/actor/actor.h
+        src/main/actor/player.cpp
+        src/main/actor/player.h
+        src/main/actor/actorManager.cpp
+        src/main/actor/actorManager.h)
 
 target_link_libraries(catGame sfml-audio sfml-network sfml-graphics sfml-window sfml-system)
