@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CATGAME_TILE_H
 #define CATGAME_TILE_H
 

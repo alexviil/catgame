@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CATGAME_GAME_H
 #define CATGAME_GAME_H
 
@@ -7,13 +8,15 @@
 #include "draw.h"
 #include "actor/actor.h"
 #include "actor/player.h"
+#include "textureManager.h"
+#include "actor/textContainer.h"
 
 class game {
 public:
     static int start();
 
 private:
-    static void mainLoop(player* player);
+    static void mainLoop(player&, sf::View&);
 
     /* uninitialized    loading assets or waiting for initialization
      * showingSplash    welcome screen
@@ -29,9 +32,11 @@ private:
     static state gameState;
     static world gameWorld;
     static std::vector<actor*> actors;
+    static std::vector<textContainer*> texts;
+    static textureManager textureManager;
 
     static sf::RenderWindow mainWindow;
-    static sf::Clock movementClock;
+    static sf::Clock debugClock;
 };
 
 

@@ -1,22 +1,38 @@
+#pragma once
 #ifndef CATGAME_ACTOR_H
 #define CATGAME_ACTOR_H
 
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/System/Clock.hpp>
 
 class actor {
 public:
-    actor(float x, float y, float speed, sf::Texture *currentTexture);
+    actor(float x, float y, float speed, const sf::Texture& currentTexture);
 
-    const sf::Sprite &getSprite() const;
+    sf::Sprite &getSprite();
+
+    float getX() const;
+
+    float getXMomentum() const;
+
+    float getY() const;
+
+    float getYMomentum() const;
 
 protected:
     float x;
+    float xMomentum = 0.f;
     float y;
-    float speed;
+    float yMomentum = 0.f;
+    float maxMomentum;
+    float acceleration = 20.f;
+    float deceleration = 10.f;
 
     sf::Sprite sprite;
+    sf::Clock animationClock;
+    bool spriteFlipped = false;
 
 private:
     /*
@@ -26,15 +42,15 @@ private:
     ...
     */
 
-    sf::Texture* currentTexture;
+    sf::Texture currentTexture;
 
     /* TODO
-    std::vector<std::string> idleTextures;
-    std::vector<std::string> moveTextures;
-    std::vector<std::string> jumpTextures;
-    std::vector<std::string> useItemTextures;
-    std::vector<std::string> attack1Textures;
-    std::vector<std::string> attack2Textures;
+    sf::Texture idleTextureSheet;
+    sf::Texture moveTextureSheet;
+    sf::Texture jumpTextureSheet;
+    sf::Texture useItemTextureSheet;
+    sf::Texture attackBasicTextureSheet;
+    sf::Texture attackStrongTextureSheet;
     ...
     */
 };

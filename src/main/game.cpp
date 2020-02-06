@@ -4,85 +4,112 @@
 #include "draw.h"
 #include "actor/actor.h"
 #include "actor/player.h"
-#include <iostream>
+#include "actor/textContainer.h"
 
 game::state game::gameState = uninitialized;
 world game::gameWorld;
 std::vector<actor*> game::actors;
+std::vector<textContainer*> game::texts;
+textureManager game::textureManager;
 
+sf::Clock game::debugClock;
 sf::RenderWindow game::mainWindow;
-sf::Clock game::movementClock;
 
 int game::start() {
-    std::cout << "Starting..." << std::endl;
-    mainWindow.create(sf::VideoMode(1280, 720, 32), "Cat Game Project!");
-    //mainWindow.setFramerateLimit(60);
-    mainWindow.setVerticalSyncEnabled(true);
+    // ----- Initialization -----
 
-    // TODO move to actorManager.h
-    sf::Texture player_default;
-    player_default.loadFromFile(SPRITE_PLAYER_DEFAULT);
-    player player(300.f, 300.f, 240.f, &player_default);
+    // Create window
+    mainWindow.create(sf::VideoMode(1280, 720, 32), "Cat Game Project!");
+    mainWindow.setFramerateLimit(60);
+    //mainWindow.setVerticalSyncEnabled(true);
+
+    // Create view (optional, allows "camera" movement, panning, etc.)
+    sf::View mainView = sf::View(sf::Vector2f(640.f, 360.f), sf::Vector2f(1280.f, 720.f));
+    //mainView.zoom(1.f);
+    mainWindow.setView(mainView);
+
+    // Create debug texts;
+    textContainer fps = textContainer(2.f, 2.f, textureManager.getFont(FONT_DEFAULT), "FPS: 0", 16);
+    texts.push_back(&fps);
+    int frames = 0;
+
+    // ---------- Game ----------
+
+    //https://www.gamefromscratch.com/post/2015/10/26/SFML-CPP-Tutorial-Spritesheets-and-Animation.aspx
+
+    player player(616.f, 336.f, 10.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
     actors.push_back(&player);
+
+    // ------- Main Loop --------
 
     gameState = playing;
     while(gameState != exiting) {
         try {
-            mainLoop(&player);
+            sf::Event currentEvent{};
+            while(mainWindow.pollEvent(currentEvent)) {
+                switch (currentEvent.type) {
+
+                        // WINDOW CLOSED
+
+                    case sf::Event::Closed:
+                        gameState = exiting;
+                        break;
+
+                        // KEY PRESS/RELEASE
+
+                    case sf::Event::KeyPressed:
+                        switch (currentEvent.key.code) {
+                            case sf::Keyboard::W:
+                                player.setInputMovingUp(true);
+                                break;
+                            case sf::Keyboard::A:
+                                player.setInputMovingLeft(true);
+                                break;
+                            case sf::Keyboard::S:
+                                player.setInputMovingDown(true);
+                                break;
+                            case sf::Keyboard::D:
+                                player.setInputMovingRight(true);
+                                break;
+                        }
+                        break;
+                    case sf::Event::KeyReleased:
+                        switch (currentEvent.key.code) {
+                            case sf::Keyboard::W:
+                                player.setInputMovingUp(false);
+                                break;
+                            case sf::Keyboard::A:
+                                player.setInputMovingLeft(false);
+                                break;
+                            case sf::Keyboard::S:
+                                player.setInputMovingDown(false);
+                                break;
+                            case sf::Keyboard::D:
+                                player.setInputMovingRight(false);
+                                break;
+                        }
+                        break;
+
+                }
+            }
+
+            player.move(&mainView);
+            mainWindow.setView(mainView);
+            frames++;
+            if (debugClock.getElapsedTime().asSeconds() >= 1.f) {
+                fps.getText().setString("FPS: " + std::to_string(frames));
+                debugClock.restart();
+                frames = 0;
+            }
+            fps.getText().setPosition(player.getX() - 614.f, player.getY() - 334.f);
+            draw::render(gameWorld, mainWindow, actors, texts);
         } catch (int e) {
             return e;
         }
     }
 
-    std::cout << "Closing..." << std::endl;
+    // ---- Closing & Saving ----
+
     mainWindow.close();
-
     return 0;
-}
-
-void game::mainLoop(player* player) {
-    sf::Event currentEvent{};
-    while(mainWindow.pollEvent(currentEvent)) {
-
-        switch (currentEvent.type) {
-            case sf::Event::Closed:
-                gameState = exiting;
-                break;
-            case sf::Event::KeyPressed:
-                switch (currentEvent.key.code) {
-                    case sf::Keyboard::W:
-                        player->movingUp = true;
-                        break;
-                    case sf::Keyboard::A:
-                        player->movingLeft = true;
-                        break;
-                    case sf::Keyboard::S:
-                        player->movingDown = true;
-                        break;
-                    case sf::Keyboard::D:
-                        player->movingRight = true;
-                        break;
-                }
-                movementClock.restart();
-                break;
-            case sf::Event::KeyReleased:
-                switch (currentEvent.key.code) {
-                    case sf::Keyboard::W:
-                        player->movingUp = false;
-                        break;
-                    case sf::Keyboard::A:
-                        player->movingLeft = false;
-                        break;
-                    case sf::Keyboard::S:
-                        player->movingDown = false;
-                        break;
-                    case sf::Keyboard::D:
-                        player->movingRight = false;
-                        break;
-                }
-                break;
-        }
-    }
-    player->move(movementClock.restart().asSeconds());
-    draw::render(&gameWorld, &mainWindow, &actors);
 }

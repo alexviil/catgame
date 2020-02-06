@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CATGAME_WORLD_H
 #define CATGAME_WORLD_H
 

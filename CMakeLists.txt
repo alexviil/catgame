@@ -23,7 +23,9 @@ add_executable(catGame
         src/main/actor/actor.h
         src/main/actor/player.cpp
         src/main/actor/player.h
+        src/main/textureManager.cpp
+        src/main/textureManager.h
         src/main/actor/actorManager.cpp
-        src/main/actor/actorManager.h)
+        src/main/actor/actorManager.h src/main/actor/textContainer.h)
 
 target_link_libraries(catGame sfml-audio sfml-network sfml-graphics sfml-window sfml-system)

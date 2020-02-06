@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CATGAME_PLAYER_H
 #define CATGAME_PLAYER_H
 
@@ -6,14 +7,24 @@
 
 class player: public actor {
 public:
-    player(float x, float y, float speed, sf::Texture *currentTexture);
+    player(float x, float y, float speed, const sf::Texture& currentTexture);
 
-    void move(float time);
+    void move(sf::View* mainView);
 
-    bool movingUp = false;
-    bool movingDown = false;
-    bool movingLeft = false;
-    bool movingRight = false;
+    void setInputMovingUp(bool inputMovingUp);
+
+    void setInputMovingDown(bool inputMovingDown);
+
+    void setInputMovingLeft(bool inputMovingLeft);
+
+    void setInputMovingRight(bool inputMovingRight);
+
+private:
+    sf::Clock inputClock;
+    bool inputMovingUp = false;
+    bool inputMovingDown = false;
+    bool inputMovingLeft = false;
+    bool inputMovingRight = false;
 };
 
 
