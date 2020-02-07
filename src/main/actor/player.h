@@ -4,19 +4,19 @@
 
 
 #include "actor.h"
+#include "../world/world.h"
 
 class player: public actor {
 public:
     player(float x, float y, float speed, const sf::Texture& currentTexture);
 
-    void move(sf::View* mainView);
+    void move(sf::View& mainView, world& gameWorld);
+    void momentumDecay(float);
+    void flipSprite(bool);
 
     void setInputMovingUp(bool inputMovingUp);
-
     void setInputMovingDown(bool inputMovingDown);
-
     void setInputMovingLeft(bool inputMovingLeft);
-
     void setInputMovingRight(bool inputMovingRight);
 
 private:

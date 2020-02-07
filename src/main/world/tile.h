@@ -7,24 +7,24 @@
 #include <SFML/Graphics/Sprite.hpp>
 
 class tile {
-
-private:
-    int x;
-    int y;
-    sf::Texture* texture;
-    sf::Sprite sprite;
-
 public:
-    tile(int x, int y, sf::Texture *texture);
+    enum tileState {passable, blocked, bouncy};
 
+    tile(int x, int y, const sf::Texture &texture, int frame, tile::tileState);
 
+    const sf::Sprite &getSprite() const;
+    tileState getState() const;
+    int getDecelerationCoefficient() const;
+    void setDecelerationCoefficient(int decelerationCoefficient);
     int getX() const;
     int getY() const;
-    const sf::Sprite &getSprite() const;
-    void setX(int x);
-    void setY(int y);
-    void setSprite(const sf::Sprite &newSprite);
-    void setTexture(sf::Texture *newTexture);
+
+private:
+    tile::tileState state;
+    int x;
+    int y;
+    int decelerationCoefficient = 0;
+    sf::Sprite sprite;
 };
 
 

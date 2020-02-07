@@ -11,17 +11,18 @@ class actor {
 public:
     actor(float x, float y, float speed, const sf::Texture& currentTexture);
 
+    void animate();
+
     sf::Sprite &getSprite();
-
     float getX() const;
-
-    float getXMomentum() const;
-
     float getY() const;
-
-    float getYMomentum() const;
+    float getCollisionX();
+    float getCollisionY();
+    float getCollisionRadius();
 
 protected:
+    enum animationStates {idle, walking, attacking};
+
     float x;
     float xMomentum = 0.f;
     float y;
@@ -30,8 +31,14 @@ protected:
     float acceleration = 20.f;
     float deceleration = 10.f;
 
+    float collisionRadius = 20.f;
+
+    actor::animationStates animatonState = idle;
+    actor::animationStates previousAnimationState = idle;
     sf::Sprite sprite;
     sf::Clock animationClock;
+    unsigned int animationFrames;
+    unsigned int currentFrame = 0;
     bool spriteFlipped = false;
 
 private:
@@ -43,16 +50,6 @@ private:
     */
 
     sf::Texture currentTexture;
-
-    /* TODO
-    sf::Texture idleTextureSheet;
-    sf::Texture moveTextureSheet;
-    sf::Texture jumpTextureSheet;
-    sf::Texture useItemTextureSheet;
-    sf::Texture attackBasicTextureSheet;
-    sf::Texture attackStrongTextureSheet;
-    ...
-    */
 };
 
 

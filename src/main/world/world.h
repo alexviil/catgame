@@ -4,18 +4,22 @@
 
 
 #include <vector>
+#include <set>
 #include "tile.h"
+#include "../textureManager.h"
 
 class world {
+public:
+    explicit world(textureManager& textureManager);
+
+    std::vector<std::vector<tile>> &getTiles();
+
+    std::vector<tile*> getTilesByCoordsCircle(float, float, float);
+
 private:
     std::vector<std::vector<tile>> tiles;
-    sf::Texture default_tile_texture;
-
-public:
-    world();
-
-    const std::vector<std::vector<tile>> &getTiles() const;
-    void setTiles(const std::vector<std::vector<tile>> &newTiles);
+    tile nullTile = tile(0, 0, sf::Texture(), 0, tile::bouncy);
+    bool Pred(tile&, tile&);
 };
 
 

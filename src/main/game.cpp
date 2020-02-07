@@ -1,3 +1,4 @@
+#include <iostream>
 #include "game.h"
 #include "../constants.h"
 #include "world/world.h"
@@ -7,10 +8,10 @@
 #include "actor/textContainer.h"
 
 game::state game::gameState = uninitialized;
-world game::gameWorld;
 std::vector<actor*> game::actors;
 std::vector<textContainer*> game::texts;
 textureManager game::textureManager;
+world game::gameWorld(game::textureManager);
 
 sf::Clock game::debugClock;
 sf::RenderWindow game::mainWindow;
@@ -19,13 +20,13 @@ int game::start() {
     // ----- Initialization -----
 
     // Create window
-    mainWindow.create(sf::VideoMode(1280, 720, 32), "Cat Game Project!");
+    mainWindow.create(sf::VideoMode(1920, 1080, 32), "Cat Game Project!");
     mainWindow.setFramerateLimit(60);
     //mainWindow.setVerticalSyncEnabled(true);
 
     // Create view (optional, allows "camera" movement, panning, etc.)
-    sf::View mainView = sf::View(sf::Vector2f(640.f, 360.f), sf::Vector2f(1280.f, 720.f));
-    //mainView.zoom(1.f);
+    sf::View mainView = sf::View(sf::Vector2f(640.f, 360.f), sf::Vector2f(1920.f, 1080.f));
+    mainView.zoom(0.5f);
     mainWindow.setView(mainView);
 
     // Create debug texts;
@@ -93,7 +94,7 @@ int game::start() {
                 }
             }
 
-            player.move(&mainView);
+            player.move(mainView, gameWorld);
             mainWindow.setView(mainView);
             frames++;
             if (debugClock.getElapsedTime().asSeconds() >= 1.f) {
@@ -101,7 +102,8 @@ int game::start() {
                 debugClock.restart();
                 frames = 0;
             }
-            fps.getText().setPosition(player.getX() - 614.f, player.getY() - 334.f);
+
+            fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2, mainView.getCenter().y - mainView.getSize().y / 2);
             draw::render(gameWorld, mainWindow, actors, texts);
         } catch (int e) {
             return e;

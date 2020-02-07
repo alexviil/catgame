@@ -16,8 +16,6 @@ public:
     static int start();
 
 private:
-    static void mainLoop(player&, sf::View&);
-
     /* uninitialized    loading assets or waiting for initialization
      * showingSplash    welcome screen
      * paused           ...

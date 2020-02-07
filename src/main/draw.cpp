@@ -1,9 +1,7 @@
-#include <SFML/Graphics/Text.hpp>
 #include "draw.h"
-#include "../constants.h"
 #include "actor/actor.h"
 
-void draw::render(const world& gameWorld_p, sf::RenderWindow& mainWindow_p, std::vector<actor*>& actors_p, std::vector<textContainer*>& texts_p) {
+void draw::render(world& gameWorld_p, sf::RenderWindow& mainWindow_p, std::vector<actor*>& actors_p, std::vector<textContainer*>& texts_p) {
     mainWindow_p.clear(sf::Color(200, 100, 200));
 
     std::vector<std::vector<tile>> tiles = gameWorld_p.getTiles();
@@ -16,6 +14,7 @@ void draw::render(const world& gameWorld_p, sf::RenderWindow& mainWindow_p, std:
     }
 
     for (int i = 0; i < actors_p.capacity(); ++i) {
+        actors_p[i]->animate();
         mainWindow_p.draw(actors_p[i]->getSprite());
     }
 
