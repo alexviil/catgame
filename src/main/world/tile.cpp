@@ -31,3 +31,11 @@ int tile::getX() const {
 int tile::getY() const {
     return y;
 }
+
+int tile::getCentreX() const {
+    return x + TILE_WIDTH / 2;
+}
+
+int tile::getCentreY() const {
+    return y + TILE_WIDTH / 2;
+}

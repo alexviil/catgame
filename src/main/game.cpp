@@ -36,9 +36,7 @@ int game::start() {
 
     // ---------- Game ----------
 
-    //https://www.gamefromscratch.com/post/2015/10/26/SFML-CPP-Tutorial-Spritesheets-and-Animation.aspx
-
-    player player(616.f, 336.f, 10.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+    player player(616.f, 336.f, 50.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
     actors.push_back(&player);
 
     // ------- Main Loop --------

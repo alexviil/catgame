@@ -11,6 +11,7 @@ actor::actor(float x, float y, float speed, const sf::Texture& currentTexture) :
 }
 
 void actor::animate() {
+    //https://www.gamefromscratch.com/post/2015/10/26/SFML-CPP-Tutorial-Spritesheets-and-Animation.aspx
     float time = animationClock.getElapsedTime().asSeconds();
 
     switch (animatonState) {
@@ -57,14 +58,14 @@ float actor::getY() const {
     return y;
 }
 
-float actor::getCollisionX() {
+float actor::getCollisionCentreX() {
     return x + TILE_WIDTH / 2.f;
 }
 
-float actor::getCollisionY() {
-    return y + TILE_WIDTH / 2.f;
+float actor::getCollisionCentreY() {
+    return y + TILE_HEIGHT / 2.f;
 }
 
-float actor::getCollisionRadius() {
-    return collisionRadius;
+float actor::getCollisionBoxSideHalf() {
+    return collisionBoxSideHalf;
 }

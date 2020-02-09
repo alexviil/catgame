@@ -15,11 +15,11 @@ public:
     std::vector<std::vector<tile>> &getTiles();
 
     std::vector<tile*> getTilesByCoordsCircle(float, float, float);
+    std::vector<tile*> getTilesByCoordsSquare(float, float, float);
 
 private:
     std::vector<std::vector<tile>> tiles;
     tile nullTile = tile(0, 0, sf::Texture(), 0, tile::bouncy);
-    bool Pred(tile&, tile&);
 };
 
 

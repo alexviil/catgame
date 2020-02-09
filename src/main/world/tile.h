@@ -18,6 +18,8 @@ public:
     void setDecelerationCoefficient(int decelerationCoefficient);
     int getX() const;
     int getY() const;
+    int getCentreX() const;
+    int getCentreY() const;
 
 private:
     tile::tileState state;

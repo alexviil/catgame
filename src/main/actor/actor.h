@@ -16,9 +16,9 @@ public:
     sf::Sprite &getSprite();
     float getX() const;
     float getY() const;
-    float getCollisionX();
-    float getCollisionY();
-    float getCollisionRadius();
+    float getCollisionCentreX();
+    float getCollisionCentreY();
+    float getCollisionBoxSideHalf();
 
 protected:
     enum animationStates {idle, walking, attacking};
@@ -31,7 +31,7 @@ protected:
     float acceleration = 20.f;
     float deceleration = 10.f;
 
-    float collisionRadius = 20.f;
+    float collisionBoxSideHalf = 14.f;
 
     actor::animationStates animatonState = idle;
     actor::animationStates previousAnimationState = idle;
