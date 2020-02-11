@@ -1,5 +1,4 @@
 #include <SFML/Graphics/View.hpp>
-#include <iostream>
 #include <cmath>
 #include "player.h"
 #include "../../constants.h"
@@ -37,8 +36,8 @@ void player::move(sf::View& mainView, world& gameWorld) {
         momentumDecay(time);
     }
 
-    std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum, getCollisionCentreY() + yMomentum,
-                                                                    getCollisionBoxSideHalf());
+    std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum,
+            getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
     for (int i = 0; i < nextTiles.capacity(); ++i) {
         tile* tile_p = nextTiles[i];
         switch (tile_p->getState()) {
@@ -71,9 +70,9 @@ void player::move(sf::View& mainView, world& gameWorld) {
                     || (getCollisionCentreY() - getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
                         getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getY()))) {
                     if (getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getCentreX())) {
-                        xMomentum = std::abs(xMomentum) * 1.25f;
+                        xMomentum = std::abs(xMomentum) * 0.9f;
                     } else {
-                        xMomentum = std::abs(xMomentum) * -1.25f;
+                        xMomentum = std::abs(xMomentum) * -0.9f;
                     }
                 }
 
@@ -82,9 +81,9 @@ void player::move(sf::View& mainView, world& gameWorld) {
                     || (getCollisionCentreX() - getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
                         getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getX()))) {
                     if (getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getCentreY())) {
-                        yMomentum = std::abs(yMomentum) * 1.25f;
+                        yMomentum = std::abs(yMomentum) * 0.9f;
                     } else {
-                        yMomentum = std::abs(yMomentum) * -1.25f;
+                        yMomentum = std::abs(yMomentum) * -0.9f;
                     }
                 }
                 break;
@@ -92,9 +91,6 @@ void player::move(sf::View& mainView, world& gameWorld) {
                 break;
         }
     }
-
-    std::cout << "-----\n";
-    std::cout << getCollisionCentreX() << ";" << getCollisionCentreY() << std::endl;
 
     if (std::abs(xMomentum) > 0.01f || std::abs(yMomentum) > 0.01f) {
 
@@ -113,10 +109,6 @@ void player::momentumDecay(float time) {
     if (!inputMovingLeft && !inputMovingRight) {
         xMomentum -= std::abs(xMomentum) < 0.01f ? 0.f : xMomentum * time * deceleration;
     }
-    /*
-    if (std::abs(xMomentum) < 0.01f) {xMomentum = 0.f;}
-    if (std::abs(yMomentum) < 0.01f) {yMomentum = 0.f;}
-     */
 }
 
 void player::flipSprite(bool left) {

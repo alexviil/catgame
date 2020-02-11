@@ -5,6 +5,7 @@
 
 #include "actor.h"
 #include "../world/world.h"
+#include <SFML/Graphics/View.hpp>
 
 class player: public actor {
 public:

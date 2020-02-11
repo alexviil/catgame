@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iostream>
 #include "actor.h"
 #include "../../constants.h"
 
@@ -68,4 +69,117 @@ float actor::getCollisionCentreY() {
 
 float actor::getCollisionBoxSideHalf() {
     return collisionBoxSideHalf;
+}
+
+void actor::momentumDecay(float time, bool moveUp, bool moveRight, bool moveDown, bool moveLeft) {
+    if (!moveUp && !moveDown) {
+        yMomentum -= std::abs(yMomentum) < 0.01f ? 0.f : yMomentum * time * deceleration;
+    }
+    if (!moveLeft && !moveRight) {
+        xMomentum -= std::abs(xMomentum) < 0.01f ? 0.f : xMomentum * time * deceleration;
+    }
+}
+
+void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, world& gameWorld) {
+    float time = movementClock.restart().asSeconds();
+
+    if (moveUp || moveRight || moveLeft || moveDown) {
+        actor::animatonState = walking;
+        if (moveUp && yMomentum >= -maxMomentum) {
+            yMomentum -= time * acceleration * (moveLeft || moveRight ? 0.86603f : 1.f);
+        } else if (moveDown && yMomentum <= maxMomentum) {
+            yMomentum += time * acceleration * (moveLeft || moveRight ? 0.86603f : 1.f);
+        } else {
+            momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
+        }
+        if (moveLeft && xMomentum >= -maxMomentum) {
+            flipSprite(true, moveLeft);
+            xMomentum -= time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
+        } else if (moveRight && xMomentum <= maxMomentum) {
+            flipSprite(false, moveLeft);
+            xMomentum += time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
+        } else {
+            momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
+        }
+
+        if (std::abs(xMomentum) > 0.86603f * maxMomentum && std::abs(yMomentum) > 0.86603f * maxMomentum) {
+            xMomentum = 0.86603f * maxMomentum * (float(xMomentum > 0) - float(xMomentum < 0));
+            yMomentum = 0.86603f * maxMomentum * (float(yMomentum > 0) - float(yMomentum < 0));
+        }
+    } else {
+        actor::animatonState = idle;
+        momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
+    }
+
+    std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum,
+                                                                    getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
+    for (int i = 0; i < nextTiles.capacity(); ++i) {
+        tile* tile_p = nextTiles[i];
+        switch (tile_p->getState()) {
+            case tile::blocked:
+                if ((getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
+                     getCollisionCentreY() + getCollisionBoxSideHalf() > float(tile_p->getY()))
+                    || (getCollisionCentreY() - getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
+                        getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getY()))) {
+                    if (getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getCentreX())) {
+                        xMomentum = 0.1f;
+                    } else if (getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getCentreX())) {
+                        xMomentum = -0.1f;
+                    }
+                }
+
+                if ((getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
+                     getCollisionCentreX() + getCollisionBoxSideHalf() > float(tile_p->getX()))
+                    || (getCollisionCentreX() - getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
+                        getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getX()))) {
+                    if (getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getCentreY())) {
+                        yMomentum = 0.1f;
+                    } else if (getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getCentreY())) {
+                        yMomentum = -0.1f;
+                    }
+                }
+                break;
+            case tile::bouncy:
+                if ((getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
+                     getCollisionCentreY() + getCollisionBoxSideHalf() > float(tile_p->getY()))
+                    || (getCollisionCentreY() - getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
+                        getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getY()))) {
+                    if (getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getCentreX())) {
+                        xMomentum = std::abs(xMomentum) * 0.9f;
+                    } else {
+                        xMomentum = std::abs(xMomentum) * -0.9f;
+                    }
+                }
+
+                if ((getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
+                     getCollisionCentreX() + getCollisionBoxSideHalf() > float(tile_p->getX()))
+                    || (getCollisionCentreX() - getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
+                        getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getX()))) {
+                    if (getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getCentreY())) {
+                        yMomentum = std::abs(yMomentum) * 0.9f;
+                    } else {
+                        yMomentum = std::abs(yMomentum) * -0.9f;
+                    }
+                }
+                break;
+            case tile::passable:
+                break;
+        }
+    }
+
+    if (std::abs(xMomentum) > 0.01f || std::abs(yMomentum) > 0.01f) {
+
+        x += xMomentum;
+        y += yMomentum;
+        actor::sprite.setPosition(x, y);
+    }
+
+}
+
+void actor::flipSprite(bool left, bool moveLeft) {
+    if (spriteFlipped && !left && !moveLeft) {
+        spriteFlipped = false;
+    } else if (left) {
+        spriteFlipped = true;
+    }
 }

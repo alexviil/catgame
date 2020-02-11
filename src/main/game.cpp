@@ -1,7 +1,6 @@
 #include <iostream>
 #include "game.h"
 #include "../constants.h"
-#include "world/world.h"
 #include "draw.h"
 #include "actor/actor.h"
 #include "actor/player.h"
@@ -10,6 +9,8 @@
 game::state game::gameState = uninitialized;
 std::vector<actor*> game::actors;
 std::vector<textContainer*> game::texts;
+
+actorManager game::actorManager;
 textureManager game::textureManager;
 world game::gameWorld(game::textureManager);
 
@@ -36,8 +37,10 @@ int game::start() {
 
     // ---------- Game ----------
 
-    player player(616.f, 336.f, 50.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
-    actors.push_back(&player);
+    player *player = actorManager.createPlayer(616.f, 336.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+
+    actorManager.createActor(400.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+    sf::Clock temp;
 
     // ------- Main Loop --------
 
@@ -59,32 +62,32 @@ int game::start() {
                     case sf::Event::KeyPressed:
                         switch (currentEvent.key.code) {
                             case sf::Keyboard::W:
-                                player.setInputMovingUp(true);
+                                player->setInputMovingUp(true);
                                 break;
                             case sf::Keyboard::A:
-                                player.setInputMovingLeft(true);
+                                player->setInputMovingLeft(true);
                                 break;
                             case sf::Keyboard::S:
-                                player.setInputMovingDown(true);
+                                player->setInputMovingDown(true);
                                 break;
                             case sf::Keyboard::D:
-                                player.setInputMovingRight(true);
+                                player->setInputMovingRight(true);
                                 break;
                         }
                         break;
                     case sf::Event::KeyReleased:
                         switch (currentEvent.key.code) {
                             case sf::Keyboard::W:
-                                player.setInputMovingUp(false);
+                                player->setInputMovingUp(false);
                                 break;
                             case sf::Keyboard::A:
-                                player.setInputMovingLeft(false);
+                                player->setInputMovingLeft(false);
                                 break;
                             case sf::Keyboard::S:
-                                player.setInputMovingDown(false);
+                                player->setInputMovingDown(false);
                                 break;
                             case sf::Keyboard::D:
-                                player.setInputMovingRight(false);
+                                player->setInputMovingRight(false);
                                 break;
                         }
                         break;
@@ -92,17 +95,21 @@ int game::start() {
                 }
             }
 
-            player.move(mainView, gameWorld);
-            mainWindow.setView(mainView);
-            frames++;
-            if (debugClock.getElapsedTime().asSeconds() >= 1.f) {
-                fps.getText().setString("FPS: " + std::to_string(frames));
-                debugClock.restart();
-                frames = 0;
+            if (temp.getElapsedTime().asSeconds() > 0.5f) {
+                actorManager.getActors()[1]->move(true, false, false, false, gameWorld);
+                if (temp.getElapsedTime().asSeconds() > 1.05f) {
+                    temp.restart();
+                }
+            } else {
+                actorManager.getActors()[1]->move(false, false, true, false, gameWorld);
             }
 
+            player->move(mainView, gameWorld);
+            mainWindow.setView(mainView);
+
+            frames++;
             fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2, mainView.getCenter().y - mainView.getSize().y / 2);
-            draw::render(gameWorld, mainWindow, actors, texts);
+            draw::render(gameWorld, mainWindow, actorManager.getActors(), texts);
         } catch (int e) {
             return e;
         }

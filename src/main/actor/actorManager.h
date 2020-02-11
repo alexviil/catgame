@@ -1,13 +1,22 @@
-//
-// Created by Alex on 05/02/2020.
-//
-
 #ifndef CATGAME_ACTORMANAGER_H
 #define CATGAME_ACTORMANAGER_H
 
 
-class actorManager {
+#include "actor.h"
+#include "player.h"
+#include <SFML/Graphics/View.hpp>
 
+class actorManager {
+public:
+    actorManager();
+
+    player* createPlayer(float, float, sf::Texture&);
+    void createActor(float, float, sf::Texture&);
+    void removeActor(int i);
+    std::vector<actor*> &getActors();
+
+private:
+    std::vector<actor*> actors;
 };
 
 

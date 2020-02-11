@@ -6,12 +6,13 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Clock.hpp>
+#include "../world/world.h"
 
 class actor {
 public:
     actor(float x, float y, float speed, const sf::Texture& currentTexture);
-
     void animate();
+    void move(bool, bool, bool, bool, world& gameWorld);
 
     sf::Sprite &getSprite();
     float getX() const;
@@ -30,6 +31,7 @@ protected:
     float maxMomentum;
     float acceleration = 20.f;
     float deceleration = 10.f;
+    sf::Clock movementClock;
 
     float collisionBoxSideHalf = 14.f;
 
@@ -50,6 +52,10 @@ private:
     */
 
     sf::Texture currentTexture;
+
+    void momentumDecay(float, bool, bool, bool, bool);
+
+    void flipSprite(bool, bool);
 };
 
 

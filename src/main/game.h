@@ -10,6 +10,7 @@
 #include "actor/player.h"
 #include "textureManager.h"
 #include "actor/textContainer.h"
+#include "actor/actorManager.h"
 
 class game {
 public:
@@ -31,6 +32,7 @@ private:
     static world gameWorld;
     static std::vector<actor*> actors;
     static std::vector<textContainer*> texts;
+    static actorManager actorManager;
     static textureManager textureManager;
 
     static sf::RenderWindow mainWindow;
