@@ -47,30 +47,6 @@ void actor::animate() {
     }
 }
 
-sf::Sprite &actor::getSprite() {
-    return sprite;
-}
-
-float actor::getX() const {
-    return x;
-}
-
-float actor::getY() const {
-    return y;
-}
-
-float actor::getCollisionCentreX() {
-    return x + TILE_WIDTH / 2.f;
-}
-
-float actor::getCollisionCentreY() {
-    return y + TILE_HEIGHT / 2.f;
-}
-
-float actor::getCollisionBoxSideHalf() {
-    return collisionBoxSideHalf;
-}
-
 void actor::momentumDecay(float time, bool moveUp, bool moveRight, bool moveDown, bool moveLeft) {
     if (!moveUp && !moveDown) {
         yMomentum -= std::abs(yMomentum) < 0.01f ? 0.f : yMomentum * time * deceleration;
@@ -80,7 +56,7 @@ void actor::momentumDecay(float time, bool moveUp, bool moveRight, bool moveDown
     }
 }
 
-void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, world& gameWorld) {
+void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, world& gameWorld, std::vector<actor*>& actors) {
     float time = movementClock.restart().asSeconds();
 
     if (moveUp || moveRight || moveLeft || moveDown) {
@@ -167,6 +143,12 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
         }
     }
 
+    for (auto & actor : actors) {
+        if (actor != this) {
+            // todo player collision lol
+        }
+    }
+
     if (std::abs(xMomentum) > 0.01f || std::abs(yMomentum) > 0.01f) {
 
         x += xMomentum;
@@ -182,4 +164,32 @@ void actor::flipSprite(bool left, bool moveLeft) {
     } else if (left) {
         spriteFlipped = true;
     }
+}
+
+sf::Sprite &actor::getSprite() {
+    return sprite;
+}
+
+float actor::getX() const {
+    return x;
+}
+
+float actor::getY() const {
+    return y;
+}
+
+float actor::getCollisionCentreX() {
+    return x + TILE_WIDTH / 2.f;
+}
+
+float actor::getCollisionCentreY() {
+    return y + TILE_HEIGHT / 2.f;
+}
+
+float actor::getCollisionBoxSideHalf() {
+    return collisionBoxSideHalf;
+}
+
+bool actor::operator>(const actor &other) const {
+    return y < other.getY();
 }

@@ -11,8 +11,11 @@
 class actor {
 public:
     actor(float x, float y, float speed, const sf::Texture& currentTexture);
+
+    bool operator> (const actor &other) const;
+
     void animate();
-    void move(bool, bool, bool, bool, world& gameWorld);
+    void move(bool, bool, bool, bool, world& gameWorld, std::vector<actor*>& actors);
 
     sf::Sprite &getSprite();
     float getX() const;

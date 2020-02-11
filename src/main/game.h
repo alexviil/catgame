@@ -30,7 +30,6 @@ private:
 
     static state gameState;
     static world gameWorld;
-    static std::vector<actor*> actors;
     static std::vector<textContainer*> texts;
     static actorManager actorManager;
     static textureManager textureManager;

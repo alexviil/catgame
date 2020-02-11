@@ -11,7 +11,7 @@ class player: public actor {
 public:
     player(float x, float y, float speed, const sf::Texture& currentTexture);
 
-    void move(sf::View& mainView, world& gameWorld);
+    void move(sf::View&, world&, std::vector<actor*>&);
     void momentumDecay(float);
     void flipSprite(bool);
 

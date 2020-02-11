@@ -7,7 +7,6 @@
 #include "actor/textContainer.h"
 
 game::state game::gameState = uninitialized;
-std::vector<actor*> game::actors;
 std::vector<textContainer*> game::texts;
 
 actorManager game::actorManager;
@@ -40,7 +39,9 @@ int game::start() {
     player *player = actorManager.createPlayer(616.f, 336.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
 
     actorManager.createActor(400.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
-    sf::Clock temp;
+    actorManager.createActor(490.f, 380.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+    actorManager.createActor(200.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+    actorManager.createActor(600.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
 
     // ------- Main Loop --------
 
@@ -94,22 +95,18 @@ int game::start() {
 
                 }
             }
-
-            if (temp.getElapsedTime().asSeconds() > 0.5f) {
-                actorManager.getActors()[1]->move(true, false, false, false, gameWorld);
-                if (temp.getElapsedTime().asSeconds() > 1.05f) {
-                    temp.restart();
-                }
-            } else {
-                actorManager.getActors()[1]->move(false, false, true, false, gameWorld);
-            }
-
-            player->move(mainView, gameWorld);
+            player->move(mainView, gameWorld, actorManager.getActors());
             mainWindow.setView(mainView);
 
             frames++;
-            fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2, mainView.getCenter().y - mainView.getSize().y / 2);
-            draw::render(gameWorld, mainWindow, actorManager.getActors(), texts);
+            if (debugClock.getElapsedTime().asSeconds() > 1.f) {
+                fps.getText().setString("FPS: " + std::to_string(frames));
+                frames = 0;
+                debugClock.restart();
+            }
+            fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2 + 1, mainView.getCenter().y - mainView.getSize().y / 2 + 1);
+            actorManager.sortActorsByY();
+            draw::render(mainView, gameWorld, mainWindow, actorManager.getActors(), texts);
         } catch (int e) {
             return e;
         }

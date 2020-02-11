@@ -10,7 +10,7 @@
 
 class draw {
 public:
-    static void render(world&, sf::RenderWindow&, std::vector<actor*>&, std::vector<textContainer*>&);
+    static void render(sf::View&, world&, sf::RenderWindow&, std::vector<actor*>&, std::vector<textContainer*>&);
 };
 
 

@@ -13,6 +13,7 @@ public:
     player* createPlayer(float, float, sf::Texture&);
     void createActor(float, float, sf::Texture&);
     void removeActor(int i);
+    void sortActorsByY();
     std::vector<actor*> &getActors();
 
 private:
