@@ -42,6 +42,7 @@ int game::start() {
     actorManager.createActor(490.f, 380.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
     actorManager.createActor(200.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
     actorManager.createActor(600.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+    sf::Clock tempclock;
 
     // ------- Main Loop --------
 
@@ -98,6 +99,25 @@ int game::start() {
             player->move(mainView, gameWorld, actorManager.getActors());
             mainWindow.setView(mainView);
 
+            
+            if (tempclock.getElapsedTime().asSeconds() > 0.5f) {
+                for (int i = 0; i < actorManager.getActors().size(); ++i) {
+                    if (actorManager.getActors()[i] != player) {
+                        actorManager.getActors()[i]->move(true, false, false, false, gameWorld, actorManager.getActors());
+                    }
+                }
+                if (tempclock.getElapsedTime().asSeconds() > 0.8f) {
+                    tempclock.restart();
+                }
+            } else {
+                for (int i = 0; i < actorManager.getActors().size(); ++i) {
+                    if (actorManager.getActors()[i] != player) {
+                        actorManager.getActors()[i]->move(false, false, true, false, gameWorld, actorManager.getActors());
+                    }
+                }
+            }
+            
+            
             frames++;
             if (debugClock.getElapsedTime().asSeconds() > 1.f) {
                 fps.getText().setString("FPS: " + std::to_string(frames));

@@ -23,6 +23,12 @@ public:
     float getCollisionCentreX();
     float getCollisionCentreY();
     float getCollisionBoxSideHalf();
+    float getCollisionX1();
+    float getCollisionX2();
+    float getCollisionY1();
+    float getCollisionY2();
+    float getXMomentum() const;
+    float getYMomentum() const;
 
 protected:
     enum animationStates {idle, walking, attacking};

@@ -88,50 +88,47 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
     }
 
     std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum,
-                                                                    getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
+            getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
+    // NOTE for a better collision system, a method which takes the entire path into account instead of just the landing
+    //      will provide a more accurate system, especially at high speeds. Currently, speeds that surpass a tile's
+    //      within the span of a tick ignores the passed tile.
+    // NOTE2 instead of setting momentum as some arbitrary low value, set it as the maximum/minimum value that avoids
+    //       collision by calculating distance.
     for (int i = 0; i < nextTiles.capacity(); ++i) {
         tile* tile_p = nextTiles[i];
         switch (tile_p->getState()) {
             case tile::blocked:
-                if ((getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
-                     getCollisionCentreY() + getCollisionBoxSideHalf() > float(tile_p->getY()))
-                    || (getCollisionCentreY() - getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
-                        getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getY()))) {
-                    if (getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getCentreX())) {
+                if ((getCollisionY2() < float(tile_p->getY()) + TILE_HEIGHT && getCollisionY2() > float(tile_p->getY()))
+                    || (getCollisionY1() < float(tile_p->getY()) + TILE_HEIGHT && getCollisionY1() > float(tile_p->getY()))) {
+                    if (getCollisionX1() > float(tile_p->getCentreX())) {
                         xMomentum = 0.1f;
-                    } else if (getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getCentreX())) {
+                    } else if (getCollisionX2() < float(tile_p->getCentreX())) {
                         xMomentum = -0.1f;
                     }
                 }
 
-                if ((getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
-                     getCollisionCentreX() + getCollisionBoxSideHalf() > float(tile_p->getX()))
-                    || (getCollisionCentreX() - getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
-                        getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getX()))) {
-                    if (getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getCentreY())) {
+                if ((getCollisionX2() < float(tile_p->getX()) + TILE_WIDTH && getCollisionX2() > float(tile_p->getX()))
+                    || (getCollisionX1() < float(tile_p->getX()) + TILE_WIDTH && getCollisionX1() > float(tile_p->getX()))) {
+                    if (getCollisionY1() > float(tile_p->getCentreY())) {
                         yMomentum = 0.1f;
-                    } else if (getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getCentreY())) {
+                    } else if (getCollisionY2() < float(tile_p->getCentreY())) {
                         yMomentum = -0.1f;
                     }
                 }
                 break;
             case tile::bouncy:
-                if ((getCollisionCentreY() + getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
-                     getCollisionCentreY() + getCollisionBoxSideHalf() > float(tile_p->getY()))
-                    || (getCollisionCentreY() - getCollisionBoxSideHalf() < float(tile_p->getY()) + TILE_HEIGHT &&
-                        getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getY()))) {
-                    if (getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getCentreX())) {
+                if ((getCollisionY2() < float(tile_p->getY()) + TILE_HEIGHT && getCollisionY2() > float(tile_p->getY()))
+                    || (getCollisionY1() < float(tile_p->getY()) + TILE_HEIGHT && getCollisionY1() > float(tile_p->getY()))) {
+                    if (getCollisionX1() > float(tile_p->getCentreX())) {
                         xMomentum = std::abs(xMomentum) * 0.9f;
                     } else {
                         xMomentum = std::abs(xMomentum) * -0.9f;
                     }
                 }
 
-                if ((getCollisionCentreX() + getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
-                     getCollisionCentreX() + getCollisionBoxSideHalf() > float(tile_p->getX()))
-                    || (getCollisionCentreX() - getCollisionBoxSideHalf() < float(tile_p->getX()) + TILE_WIDTH &&
-                        getCollisionCentreX() - getCollisionBoxSideHalf() > float(tile_p->getX()))) {
-                    if (getCollisionCentreY() - getCollisionBoxSideHalf() > float(tile_p->getCentreY())) {
+                if ((getCollisionX2() < float(tile_p->getX()) + TILE_WIDTH && getCollisionX2() > float(tile_p->getX()))
+                    || (getCollisionX1() < float(tile_p->getX()) + TILE_WIDTH && getCollisionX1() > float(tile_p->getX()))) {
+                    if (getCollisionY1() > float(tile_p->getCentreY())) {
                         yMomentum = std::abs(yMomentum) * 0.9f;
                     } else {
                         yMomentum = std::abs(yMomentum) * -0.9f;
@@ -144,8 +141,28 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
     }
 
     for (auto & actor : actors) {
-        if (actor != this) {
-            // todo player collision lol
+        // FIXME fix this ugly fucking shit jfc
+        if (actor != this
+        && getCollisionX1() + xMomentum < actor->getCollisionX2() + actor->getXMomentum()
+        && getCollisionX2() + xMomentum > actor->getCollisionX1() + actor->getXMomentum()
+        && getCollisionY1() + yMomentum < actor->getCollisionY2() + actor->getYMomentum()
+        && getCollisionY2() + yMomentum > actor->getCollisionY1() + actor->getYMomentum()) {
+            if ((getCollisionY2() < actor->getCollisionY2() && getCollisionY2() > actor->getCollisionY1())
+                || (getCollisionY1() < actor->getCollisionY2() && getCollisionY1() > actor->getCollisionY1())) {
+                if (getCollisionX1() > actor->getCollisionX1()) {
+                    xMomentum = 0.1f;
+                } else if (getCollisionX2() < actor->getCollisionX1()) {
+                    xMomentum = -0.1f;
+                }
+            }
+            if ((getCollisionX2() < actor->getCollisionX2() && getCollisionX2() > actor->getCollisionX1())
+                || (getCollisionX1() < actor->getCollisionX2() && getCollisionX1() > actor->getCollisionX1())) {
+                if (getCollisionY1() > actor->getCollisionY1()) {
+                    yMomentum = 0.1f;
+                } else if (getCollisionY2() < actor->getCollisionY1()) {
+                    yMomentum = -0.1f;
+                }
+            }
         }
     }
 
@@ -190,6 +207,29 @@ float actor::getCollisionBoxSideHalf() {
     return collisionBoxSideHalf;
 }
 
+float actor::getCollisionX1() {
+    return getCollisionCentreX() - getCollisionBoxSideHalf();
+}
+
+float actor::getCollisionX2() {
+    return getCollisionCentreX() + getCollisionBoxSideHalf();
+}
+
+float actor::getCollisionY1() {
+    return getCollisionCentreY() - getCollisionBoxSideHalf();
+}
+float actor::getCollisionY2() {
+    return getCollisionCentreY() + getCollisionBoxSideHalf();
+}
+
 bool actor::operator>(const actor &other) const {
     return y < other.getY();
+}
+
+float actor::getXMomentum() const {
+    return xMomentum;
+}
+
+float actor::getYMomentum() const {
+    return yMomentum;
 }
