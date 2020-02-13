@@ -141,12 +141,11 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
     }
 
     for (auto & actor : actors) {
-        // FIXME fix this ugly fucking shit jfc
         if (actor != this
-        && getCollisionX1() + xMomentum < actor->getCollisionX2() + actor->getXMomentum()
-        && getCollisionX2() + xMomentum > actor->getCollisionX1() + actor->getXMomentum()
-        && getCollisionY1() + yMomentum < actor->getCollisionY2() + actor->getYMomentum()
-        && getCollisionY2() + yMomentum > actor->getCollisionY1() + actor->getYMomentum()) {
+        && getCollisionX1() + xMomentum < actor->getCollisionX2()
+        && getCollisionX2() + xMomentum > actor->getCollisionX1()
+        && getCollisionY1() + yMomentum < actor->getCollisionY2()
+        && getCollisionY2() + yMomentum > actor->getCollisionY1()) {
             if ((getCollisionY2() < actor->getCollisionY2() && getCollisionY2() > actor->getCollisionY1())
                 || (getCollisionY1() < actor->getCollisionY2() && getCollisionY1() > actor->getCollisionY1())) {
                 if (getCollisionX1() > actor->getCollisionX1()) {

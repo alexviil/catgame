@@ -134,6 +134,8 @@ int game::start() {
 
     // ---- Closing & Saving ----
 
+    // todo save game state
+
     mainWindow.close();
     return 0;
 }
