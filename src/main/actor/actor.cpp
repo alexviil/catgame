@@ -8,25 +8,21 @@ actor::actor(float x, float y, float speed, const sf::Texture& currentTexture) :
     actor::sprite.setPosition(sf::Vector2f(x, y));
     actor::sprite.setTexture(currentTexture);
     actor::sprite.setTextureRect(sf::IntRect(0, 0, TILE_WIDTH, TILE_HEIGHT));
-    animationFrames = currentTexture.getSize().y / TILE_HEIGHT;
+    animationFrames = currentTexture.getSize().x / TILE_WIDTH;
 }
 
 void actor::animate() {
     //https://www.gamefromscratch.com/post/2015/10/26/SFML-CPP-Tutorial-Spritesheets-and-Animation.aspx
     float time = animationClock.getElapsedTime().asSeconds();
 
-    switch (animatonState) {
+    switch (state) {
         case idle:
             if (time >= 0.25f) {
                 currentFrame++;
                 if (currentFrame == animationFrames) {
                     currentFrame = 0;
                 }
-                if (spriteFlipped) {
-                    actor::sprite.setTextureRect(sf::IntRect(TILE_WIDTH, TILE_HEIGHT * currentFrame, -TILE_WIDTH, TILE_HEIGHT));
-                } else {
-                    actor::sprite.setTextureRect(sf::IntRect(0, TILE_HEIGHT * currentFrame, TILE_WIDTH, TILE_HEIGHT));
-                }
+                actor::sprite.setTextureRect(sf::IntRect(TILE_WIDTH * currentFrame, 0, TILE_WIDTH, TILE_HEIGHT));
                 animationClock.restart();
             }
             break;
@@ -36,13 +32,15 @@ void actor::animate() {
                 if (currentFrame == animationFrames) {
                     currentFrame = 0;
                 }
-                if (spriteFlipped) {
-                    actor::sprite.setTextureRect(sf::IntRect(2 * TILE_WIDTH, TILE_HEIGHT * currentFrame, -TILE_WIDTH, TILE_HEIGHT));
-                } else {
-                    actor::sprite.setTextureRect(sf::IntRect(TILE_WIDTH, TILE_HEIGHT * currentFrame, TILE_WIDTH, TILE_HEIGHT));
-                }
+                actor::sprite.setTextureRect(sf::IntRect(
+                        TILE_WIDTH * currentFrame,
+                        TILE_HEIGHT * (direction + 1),
+                        TILE_WIDTH,
+                        TILE_HEIGHT));
                 animationClock.restart();
             }
+            break;
+        case attacking:
             break;
     }
 }
@@ -60,7 +58,7 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
     float time = movementClock.restart().asSeconds();
 
     if (moveUp || moveRight || moveLeft || moveDown) {
-        actor::animatonState = walking;
+        actor::state = walking;
         if (moveUp && yMomentum >= -maxMomentum) {
             yMomentum -= time * acceleration * (moveLeft || moveRight ? 0.86603f : 1.f);
         } else if (moveDown && yMomentum <= maxMomentum) {
@@ -69,10 +67,8 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
             momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
         }
         if (moveLeft && xMomentum >= -maxMomentum) {
-            flipSprite(true, moveLeft);
             xMomentum -= time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
         } else if (moveRight && xMomentum <= maxMomentum) {
-            flipSprite(false, moveLeft);
             xMomentum += time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
         } else {
             momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
@@ -83,9 +79,14 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
             yMomentum = 0.86603f * maxMomentum * (float(yMomentum > 0) - float(yMomentum < 0));
         }
     } else {
-        actor::animatonState = idle;
+        actor::state = idle;
         momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
     }
+
+    // Set actor direction based on input
+    actor::direction = moveUp ? actor::directions::up : moveRight ? actor::directions::right : moveDown ? actor::directions::down : actor::directions::left;
+    // Set actor direction based on momentum
+    //actor::direction = std::abs(xMomentum) > std::abs(yMomentum) ? (xMomentum < 0 ? actor::directions::left : actor::directions::right) : (yMomentum < 0 ? actor::directions::up : actor::directions::down);
 
     std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum,
             getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
@@ -174,14 +175,6 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
 
 }
 
-void actor::flipSprite(bool left, bool moveLeft) {
-    if (spriteFlipped && !left && !moveLeft) {
-        spriteFlipped = false;
-    } else if (left) {
-        spriteFlipped = true;
-    }
-}
-
 sf::Sprite &actor::getSprite() {
     return sprite;
 }
@@ -223,12 +216,4 @@ float actor::getCollisionY2() {
 
 bool actor::operator>(const actor &other) const {
     return y < other.getY();
-}
-
-float actor::getXMomentum() const {
-    return xMomentum;
-}
-
-float actor::getYMomentum() const {
-    return yMomentum;
 }

@@ -1,4 +1,3 @@
-#include <iostream>
 #include "draw.h"
 #include "actor/actor.h"
 #include "../constants.h"

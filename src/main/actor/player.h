@@ -19,6 +19,7 @@ public:
     void setInputMovingDown(bool inputMovingDown);
     void setInputMovingLeft(bool inputMovingLeft);
     void setInputMovingRight(bool inputMovingRight);
+    void setInputAttack(bool inputAttack);
 
 private:
     sf::Clock inputClock;
@@ -26,6 +27,7 @@ private:
     bool inputMovingDown = false;
     bool inputMovingLeft = false;
     bool inputMovingRight = false;
+    bool inputAttack = false;
 };
 
 

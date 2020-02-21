@@ -93,6 +93,20 @@ int game::start() {
                                 break;
                         }
                         break;
+                    case sf::Event::MouseButtonPressed:
+                        switch (currentEvent.mouseButton.button) {
+                            case sf::Mouse::Left:
+                                player->setInputAttack(true);
+                                break;
+                        }
+                        break;
+                    case sf::Event::MouseButtonReleased:
+                        switch (currentEvent.mouseButton.button) {
+                            case sf::Mouse::Left:
+                                player->setInputAttack(false);
+                                break;
+                        }
+                        break;
 
                 }
             }

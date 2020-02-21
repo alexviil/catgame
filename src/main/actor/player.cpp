@@ -26,3 +26,7 @@ void player::setInputMovingLeft(bool newInputMovingLeft) {
 void player::setInputMovingRight(bool newInputMovingRight) {
     player::inputMovingRight = newInputMovingRight;
 }
+
+void player::setInputAttack(bool inputAttack) {
+    player::inputAttack = inputAttack;
+}

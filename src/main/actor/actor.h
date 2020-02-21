@@ -12,7 +12,7 @@ class actor {
 public:
     actor(float x, float y, float speed, const sf::Texture& currentTexture);
 
-    bool operator> (const actor &other) const;
+    bool operator > (const actor &other) const;
 
     void animate();
     void move(bool, bool, bool, bool, world& gameWorld, std::vector<actor*>& actors);
@@ -27,11 +27,10 @@ public:
     float getCollisionX2();
     float getCollisionY1();
     float getCollisionY2();
-    float getXMomentum() const;
-    float getYMomentum() const;
 
 protected:
-    enum animationStates {idle, walking, attacking};
+    enum states {idle, walking, attacking};
+    enum directions {up, right, left, down};
 
     float x;
     float xMomentum = 0.f;
@@ -44,13 +43,12 @@ protected:
 
     float collisionBoxSideHalf = 14.f;
 
-    actor::animationStates animatonState = idle;
-    actor::animationStates previousAnimationState = idle;
+    actor::states state = idle;
+    actor::directions direction = down;
     sf::Sprite sprite;
     sf::Clock animationClock;
     unsigned int animationFrames;
     unsigned int currentFrame = 0;
-    bool spriteFlipped = false;
 
 private:
     /*
@@ -63,8 +61,6 @@ private:
     sf::Texture currentTexture;
 
     void momentumDecay(float, bool, bool, bool, bool);
-
-    void flipSprite(bool, bool);
 };
 
 
