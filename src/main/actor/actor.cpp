@@ -32,46 +32,47 @@ void actor::animate() {
                 if (currentFrame == animationFrames) {
                     currentFrame = 0;
                 }
-                actor::sprite.setTextureRect(sf::IntRect(
-                        TILE_WIDTH * currentFrame,
-                        TILE_HEIGHT * (direction + 1),
-                        TILE_WIDTH,
-                        TILE_HEIGHT));
+                actor::sprite.setTextureRect(sf::IntRect(TILE_WIDTH * currentFrame, TILE_HEIGHT * (direction + 1), TILE_WIDTH, TILE_HEIGHT));
                 animationClock.restart();
             }
             break;
         case attacking:
+            if (time >= 1.f / actor::attackSpeed) {
+                actor::sprite.setTextureRect(sf::IntRect(TILE_WIDTH * currentFrame, TILE_HEIGHT * (direction + 5), TILE_WIDTH, TILE_HEIGHT));
+                animationClock.restart();
+                currentFrame++;
+                if (currentFrame == animationFrames) {
+                    actor::state = actor::states::idle;
+                    currentFrame = 0;
+                }
+            }
             break;
-    }
-}
-
-void actor::momentumDecay(float time, bool moveUp, bool moveRight, bool moveDown, bool moveLeft) {
-    if (!moveUp && !moveDown) {
-        yMomentum -= std::abs(yMomentum) < 0.01f ? 0.f : yMomentum * time * deceleration;
-    }
-    if (!moveLeft && !moveRight) {
-        xMomentum -= std::abs(xMomentum) < 0.01f ? 0.f : xMomentum * time * deceleration;
     }
 }
 
 void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, world& gameWorld, std::vector<actor*>& actors) {
     float time = movementClock.restart().asSeconds();
 
-    if (moveUp || moveRight || moveLeft || moveDown) {
+    if (actor::state != actor::states::attacking && (moveUp || moveRight || moveLeft || moveDown)) {
+
+        actor::direction = moveLeft ? actor::directions::left : moveRight ? actor::directions::right : moveUp ? actor::directions::up : actor::directions::down;
         actor::state = walking;
         if (moveUp && yMomentum >= -maxMomentum) {
             yMomentum -= time * acceleration * (moveLeft || moveRight ? 0.86603f : 1.f);
         } else if (moveDown && yMomentum <= maxMomentum) {
             yMomentum += time * acceleration * (moveLeft || moveRight ? 0.86603f : 1.f);
-        } else {
-            momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
         }
         if (moveLeft && xMomentum >= -maxMomentum) {
             xMomentum -= time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
         } else if (moveRight && xMomentum <= maxMomentum) {
             xMomentum += time * acceleration * (moveUp || moveDown ? 0.86603f : 1.f);
-        } else {
-            momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
+        }
+
+        if (!moveUp && !moveDown) {
+            yMomentum -= std::abs(yMomentum) < 0.01f ? 0.f : yMomentum * time * deceleration;
+        }
+        if (!moveLeft && !moveRight) {
+            xMomentum -= std::abs(xMomentum) < 0.01f ? 0.f : xMomentum * time * deceleration;
         }
 
         if (std::abs(xMomentum) > 0.86603f * maxMomentum && std::abs(yMomentum) > 0.86603f * maxMomentum) {
@@ -79,14 +80,12 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
             yMomentum = 0.86603f * maxMomentum * (float(yMomentum > 0) - float(yMomentum < 0));
         }
     } else {
-        actor::state = idle;
-        momentumDecay(time, moveUp, moveRight, moveDown, moveLeft);
+        if (actor::state == actor::states::walking) {
+            actor::state = idle;
+        }
+        yMomentum -= std::abs(yMomentum) < 0.01f ? 0.f : yMomentum * time * deceleration;
+        xMomentum -= std::abs(xMomentum) < 0.01f ? 0.f : xMomentum * time * deceleration;
     }
-
-    // Set actor direction based on input
-    actor::direction = moveUp ? actor::directions::up : moveRight ? actor::directions::right : moveDown ? actor::directions::down : actor::directions::left;
-    // Set actor direction based on momentum
-    //actor::direction = std::abs(xMomentum) > std::abs(yMomentum) ? (xMomentum < 0 ? actor::directions::left : actor::directions::right) : (yMomentum < 0 ? actor::directions::up : actor::directions::down);
 
     std::vector<tile*> nextTiles = gameWorld.getTilesByCoordsSquare(getCollisionCentreX() + xMomentum,
             getCollisionCentreY() + yMomentum, getCollisionBoxSideHalf());
@@ -167,12 +166,33 @@ void actor::move(bool moveUp, bool moveRight, bool moveDown, bool moveLeft, worl
     }
 
     if (std::abs(xMomentum) > 0.01f || std::abs(yMomentum) > 0.01f) {
-
         x += xMomentum;
         y += yMomentum;
         actor::sprite.setPosition(x, y);
     }
 
+}
+
+void actor::lookAt(float x, float y) {
+    float radians = 2.35619f + atan2(actor::getCollisionCentreY() - y, actor::getCollisionCentreX() - x);
+    if (radians <= 0 || radians > 4.71239) {
+        actor::direction = actor::directions::right;
+    } else if (radians <= 1.5708) {
+        actor::direction = actor::directions::down;
+    } else if (radians <= 3.14159) {
+        actor::direction = actor::directions::left;
+    } else {
+        actor::direction = actor::directions::up;
+    }
+}
+
+
+void actor::attack() {
+    if (attackClock.getElapsedTime().asSeconds() > attackCooldown) {
+        actor::currentFrame = 0;
+        actor::state = actor::states::attacking;
+        attackClock.restart();
+    }
 }
 
 sf::Sprite &actor::getSprite() {

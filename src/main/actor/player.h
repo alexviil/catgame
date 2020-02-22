@@ -12,14 +12,12 @@ public:
     player(float x, float y, float speed, const sf::Texture& currentTexture);
 
     void move(sf::View&, world&, std::vector<actor*>&);
-    void momentumDecay(float);
-    void flipSprite(bool);
+    void attack() override;
 
     void setInputMovingUp(bool inputMovingUp);
     void setInputMovingDown(bool inputMovingDown);
     void setInputMovingLeft(bool inputMovingLeft);
     void setInputMovingRight(bool inputMovingRight);
-    void setInputAttack(bool inputAttack);
 
 private:
     sf::Clock inputClock;
@@ -27,7 +25,6 @@ private:
     bool inputMovingDown = false;
     bool inputMovingLeft = false;
     bool inputMovingRight = false;
-    bool inputAttack = false;
 };
 
 

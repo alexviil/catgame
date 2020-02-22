@@ -26,13 +26,21 @@ int game::start() {
 
     // Create view (optional, allows "camera" movement, panning, etc.)
     sf::View mainView = sf::View(sf::Vector2f(640.f, 360.f), sf::Vector2f(1920.f, 1080.f));
-    mainView.zoom(0.5f);
+    float ZOOM = 0.5f;
+    mainView.zoom(ZOOM);
     mainWindow.setView(mainView);
 
     // Create debug texts;
     textContainer fps = textContainer(2.f, 2.f, textureManager.getFont(FONT_DEFAULT), "FPS: 0", 16);
     texts.push_back(&fps);
     int frames = 0;
+
+    // Custom cursor
+    float mouseX = 0, mouseY = 0;
+    mainWindow.setMouseCursorVisible(false);
+    sf::Sprite cursor;
+    cursor.setTexture(textureManager.getTexture(SPRITE_CURSOR_ATTACK));
+    cursor.scale(1.5f, 1.5f);
 
     // ---------- Game ----------
 
@@ -93,21 +101,31 @@ int game::start() {
                                 break;
                         }
                         break;
+
+                        // MOUSE PRESS/RELEASE
+
                     case sf::Event::MouseButtonPressed:
                         switch (currentEvent.mouseButton.button) {
                             case sf::Mouse::Left:
-                                player->setInputAttack(true);
+                                player->lookAt(mainView.getCenter().x - mainView.getSize().x / 2 + mouseX * ZOOM,
+                                               mainView.getCenter().y - mainView.getSize().y / 2 + mouseY * ZOOM);
+                                player->attack();
                                 break;
                         }
                         break;
                     case sf::Event::MouseButtonReleased:
                         switch (currentEvent.mouseButton.button) {
                             case sf::Mouse::Left:
-                                player->setInputAttack(false);
                                 break;
                         }
                         break;
 
+                        // MOUSE MOVED
+
+                    case sf::Event::MouseMoved:
+                        mouseX = currentEvent.mouseMove.x;
+                        mouseY = currentEvent.mouseMove.y;
+                        break;
                 }
             }
             player->move(mainView, gameWorld, actorManager.getActors());
@@ -138,9 +156,17 @@ int game::start() {
                 frames = 0;
                 debugClock.restart();
             }
+
             fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2 + 1, mainView.getCenter().y - mainView.getSize().y / 2 + 1);
+
             actorManager.sortActorsByY();
             draw::render(mainView, gameWorld, mainWindow, actorManager.getActors(), texts);
+
+            cursor.setPosition(mainView.getCenter().x - mainView.getSize().x / 2 + mouseX * ZOOM,
+                               mainView.getCenter().y - mainView.getSize().y / 2 + mouseY * ZOOM);
+            mainWindow.draw(cursor);
+
+            mainWindow.display();
         } catch (int e) {
             return e;
         }

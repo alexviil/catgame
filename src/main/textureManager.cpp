@@ -29,4 +29,5 @@ textureManager::textureManager() {
     loadTexture(SPRITE_PLAYER_DEFAULT);
     loadTexture(SPRITE_TILE_DEFAULT);
     loadTexture(SPRITE_TILE_BOUNCY);
+    loadTexture(SPRITE_CURSOR_ATTACK);
 }

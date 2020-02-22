@@ -16,6 +16,8 @@ public:
 
     void animate();
     void move(bool, bool, bool, bool, world& gameWorld, std::vector<actor*>& actors);
+    void lookAt(float, float);
+    virtual void attack();
 
     sf::Sprite &getSprite();
     float getX() const;
@@ -37,8 +39,6 @@ protected:
     float y;
     float yMomentum = 0.f;
     float maxMomentum;
-    float acceleration = 20.f;
-    float deceleration = 10.f;
     sf::Clock movementClock;
 
     float collisionBoxSideHalf = 14.f;
@@ -50,17 +50,21 @@ protected:
     unsigned int animationFrames;
     unsigned int currentFrame = 0;
 
-private:
-    /*
-    int hp;
-    int armor;
-    int dmg;
-    ...
-    */
+    // ATTRIBUTES
+    // Main
+    float hp = 100.f;
+    float unarmedDamage = 5.f;
+    // Speed & Traction
+    float acceleration = 20.f;
+    float deceleration = 10.f;
+    // Attacking
+    float attackSpeed = 10.f;
+    float attackCooldown = 1.5f;
+    sf::Clock attackClock;
 
+private:
     sf::Texture currentTexture;
 
-    void momentumDecay(float, bool, bool, bool, bool);
 };
 
 

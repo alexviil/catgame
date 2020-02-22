@@ -1,14 +1,15 @@
 #include <SFML/Graphics/View.hpp>
-#include <cmath>
-#include <iostream>
 #include "player.h"
-#include "../../constants.h"
 
 player::player(float x, float y, float speed, const sf::Texture& currentTexture) : actor(x, y, speed, currentTexture) {}
 
 void player::move(sf::View& mainView, world& gameWorld, std::vector<actor*> &actors) {
     actor::move(inputMovingUp, inputMovingRight, inputMovingDown, inputMovingLeft, gameWorld, actors);
     mainView.setCenter(x, y);
+}
+
+void player::attack() {
+    actor::attack();
 }
 
 void player::setInputMovingUp(bool newInputMovingUp) {
@@ -25,8 +26,4 @@ void player::setInputMovingLeft(bool newInputMovingLeft) {
 
 void player::setInputMovingRight(bool newInputMovingRight) {
     player::inputMovingRight = newInputMovingRight;
-}
-
-void player::setInputAttack(bool inputAttack) {
-    player::inputAttack = inputAttack;
 }

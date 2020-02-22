@@ -23,6 +23,4 @@ void draw::render(sf::View& view, world& gameWorld_p, sf::RenderWindow& mainWind
     for (auto & text : texts_p) {
         mainWindow_p.draw(text->getText());
     }
-
-    mainWindow_p.display();
 }
