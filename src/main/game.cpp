@@ -5,6 +5,8 @@
 #include "actor/actor.h"
 #include "actor/player.h"
 #include "actor/textContainer.h"
+#include "headUpDisplay/cursor.h"
+#include "headUpDisplay/overlay.h"
 
 game::state game::gameState = uninitialized;
 std::vector<textContainer*> game::texts;
@@ -20,7 +22,7 @@ int game::start() {
     // ----- Initialization -----
 
     // Create window
-    mainWindow.create(sf::VideoMode(1920, 1080, 32), "Cat Game Project!");
+    mainWindow.create(sf::VideoMode(1920, 1080, 32), "Roguelike Cat Game!");
     mainWindow.setFramerateLimit(60);
     //mainWindow.setVerticalSyncEnabled(true);
 
@@ -30,21 +32,17 @@ int game::start() {
     mainView.zoom(ZOOM);
     mainWindow.setView(mainView);
 
-    // Create debug texts;
-    textContainer fps = textContainer(2.f, 2.f, textureManager.getFont(FONT_DEFAULT), "FPS: 0", 16);
-    texts.push_back(&fps);
-    int frames = 0;
-
     // Custom cursor
     float mouseX = 0, mouseY = 0;
     mainWindow.setMouseCursorVisible(false);
-    sf::Sprite cursor;
-    cursor.setTexture(textureManager.getTexture(SPRITE_CURSOR_ATTACK));
-    cursor.scale(1.5f, 1.5f);
+    cursor cursor(actorManager.getActors(), mainView, textureManager.getTexture(SPRITE_CURSOR_DEFAULT));
 
     // ---------- Game ----------
 
     player *player = actorManager.createPlayer(616.f, 336.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
+
+    // Overlay
+    overlay overlay(mainView, player, textureManager.getTexture(SPRITE_HUD_DEFAULT), textureManager.getFont(FONT_DEFAULT));
 
     actorManager.createActor(400.f, 400.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
     actorManager.createActor(490.f, 380.f, textureManager.getTexture(SPRITE_PLAYER_DEFAULT));
@@ -82,6 +80,10 @@ int game::start() {
                                 break;
                             case sf::Keyboard::D:
                                 player->setInputMovingRight(true);
+                                break;
+
+                            case sf::Keyboard::F1:
+                                overlay.toggleDebug();
                                 break;
                         }
                         break;
@@ -128,10 +130,12 @@ int game::start() {
                         break;
                 }
             }
+
+            // Player and camera movement
             player->move(mainView, gameWorld, actorManager.getActors());
             mainWindow.setView(mainView);
 
-            
+            // Temporary artificial "intelligence"
             if (tempclock.getElapsedTime().asSeconds() > 0.5f) {
                 for (int i = 0; i < actorManager.getActors().size(); ++i) {
                     if (actorManager.getActors()[i] != player) {
@@ -148,24 +152,21 @@ int game::start() {
                     }
                 }
             }
-            
-            
-            frames++;
-            if (debugClock.getElapsedTime().asSeconds() > 1.f) {
-                fps.getText().setString("FPS: " + std::to_string(frames));
-                frames = 0;
-                debugClock.restart();
-            }
 
-            fps.getText().setPosition(mainView.getCenter().x - mainView.getSize().x / 2 + 1, mainView.getCenter().y - mainView.getSize().y / 2 + 1);
-
+            // Draw world, actor and texts.
             actorManager.sortActorsByY();
             draw::render(mainView, gameWorld, mainWindow, actorManager.getActors(), texts);
 
-            cursor.setPosition(mainView.getCenter().x - mainView.getSize().x / 2 + mouseX * ZOOM,
-                               mainView.getCenter().y - mainView.getSize().y / 2 + mouseY * ZOOM);
-            mainWindow.draw(cursor);
+            // Draw & update overlay
+            overlay.updateOverlay(ZOOM);
+            mainWindow.draw(overlay.getSprite());
+            overlay.drawDebug(mainWindow);
 
+            // Draw & update cursor
+            cursor.updateCursor(mouseX, mouseY, ZOOM);
+            mainWindow.draw(cursor.getSprite());
+
+            // Show what has been drawn.
             mainWindow.display();
         } catch (int e) {
             return e;

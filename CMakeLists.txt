@@ -26,6 +26,6 @@ add_executable(catGame
         src/main/textureManager.cpp
         src/main/textureManager.h
         src/main/actor/actorManager.cpp
-        src/main/actor/actorManager.h src/main/actor/textContainer.h)
+        src/main/actor/actorManager.h src/main/actor/textContainer.h src/main/headUpDisplay/cursor.cpp src/main/headUpDisplay/cursor.h src/main/headUpDisplay/overlay.cpp src/main/headUpDisplay/overlay.h)
 
 target_link_libraries(catGame sfml-audio sfml-network sfml-graphics sfml-window sfml-system)

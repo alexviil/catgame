@@ -1,7 +1,9 @@
 #include <SFML/Graphics/View.hpp>
 #include "player.h"
 
-player::player(float x, float y, float speed, const sf::Texture& currentTexture) : actor(x, y, speed, currentTexture) {}
+player::player(float x, float y, float speed, const sf::Texture& currentTexture) : actor(x, y, speed, currentTexture) {
+    hostile = false;
+}
 
 void player::move(sf::View& mainView, world& gameWorld, std::vector<actor*> &actors) {
     actor::move(inputMovingUp, inputMovingRight, inputMovingDown, inputMovingLeft, gameWorld, actors);

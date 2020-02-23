@@ -237,3 +237,7 @@ float actor::getCollisionY2() {
 bool actor::operator>(const actor &other) const {
     return y < other.getY();
 }
+
+bool actor::isHostile() const {
+    return hostile;
+}

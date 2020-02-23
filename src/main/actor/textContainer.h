@@ -12,6 +12,7 @@ public:
         newText.setPosition(x, y);
         newText.setString(displayText);
         newText.setCharacterSize(size);
+        newText.setScale(0.5f, 0.5f);
         textContainer::text = newText;
     }
 

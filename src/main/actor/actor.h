@@ -30,6 +30,8 @@ public:
     float getCollisionY1();
     float getCollisionY2();
 
+    bool isHostile() const;
+
 protected:
     enum states {idle, walking, attacking};
     enum directions {up, right, left, down};
@@ -58,9 +60,11 @@ protected:
     float acceleration = 20.f;
     float deceleration = 10.f;
     // Attacking
-    float attackSpeed = 10.f;
-    float attackCooldown = 1.5f;
+    float attackSpeed = 10.f; // 1/attackSpeed seconds per frame, therefore 4/attackSpeed seconds attack animation duration
+    float attackCooldown = (4 / attackSpeed) * 1.25f;
     sf::Clock attackClock;
+    // Relation to player
+    bool hostile = true;
 
 private:
     sf::Texture currentTexture;

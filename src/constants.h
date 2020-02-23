@@ -9,7 +9,8 @@ const string ROOT = "../src/resources/";
 const string FONT_DEFAULT = ROOT + "fonts/PIXEARG_.TTF";
 
 // HUD
-const string SPRITE_CURSOR_ATTACK = ROOT + "sprites/cursor_attack.png";
+const string SPRITE_CURSOR_DEFAULT = ROOT + "sprites/cursor_default.png";
+const string SPRITE_HUD_DEFAULT = ROOT + "sprites/hud_default.png";
 
 // Player
 const string SPRITE_PLAYER_DEFAULT = ROOT + "sprites/player_default.png";
